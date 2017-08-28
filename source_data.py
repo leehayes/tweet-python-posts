@@ -1,10 +1,12 @@
 from functools import wraps
 import DB_Manager
+import requests
+import xmltodict
+from pprint import pprint
 """
 Hold the classes designed to extract and return the necessary results for new and old posts
 """
 
-#TODO: module that is triggered by cron job
 #TODO: module to validate, check and update sqlite db
 #TODO: module to send a tweet out
 #TODO: dbader
@@ -16,9 +18,7 @@ class Decorators:
     def check_sql(cls, func):
         @wraps(func)
         def wrapper(*args, **kwargs):
-            #check for sqlite db, if not there, create one and upload entire archive.
-            print("checking sql")
-            x = DB_Manager.DB()
+            DB_Manager.DB()
             return func(*args, **kwargs)
         return wrapper
 
@@ -32,12 +32,19 @@ class PlanetPython:
     def __call__(self):
         print("Running PlanetPython")
 
-        #go to RSS feed and get most recent posts http://planetpython.org/rss20.xml
+        xml_dict = xmltodict.parse(self.rss_feed)
+        for item in xml_dict['rss']['channel']['item']:
+            if DB_Manager.add_new_content('PlanetPython', item['link'], item['title'], item['link'])
+                print("This was new content, send tweet")
+                #only tweet one post per cron task
+                break
 
-        #Look for posts that are not in db, using url as UID, if new add to db and tweet
+        #If no new tweets, return an old one from the archive (true or false?)
 
-        #If no new tweets, return an old one from the archive
-
+    @property
+    def rss_feed(self):
+        xml = requests.get('http://planetpython.org/rss20.xml').text
+        return xml
 
 class DBader:
     """
