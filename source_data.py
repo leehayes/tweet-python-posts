@@ -37,8 +37,6 @@ class PlanetPython:
 
     @Decorators.check_sql
     def __call__(self):
-        print("Running PlanetPython")
-
         xml_dict = xmltodict.parse(self.rss_feed)
         for item in xml_dict['rss']['channel']['item']:
             if DB.add_new_content('PlanetPython', item['link'], item['title'], item['link']):
@@ -53,10 +51,3 @@ class PlanetPython:
         xml = requests.get('http://planetpython.org/rss20.xml').text
         return xml
 
-class DBader:
-    """
-    TBC
-    """
-    @Decorators.check_sql
-    def __call__(self):
-        print("Running DBader")
