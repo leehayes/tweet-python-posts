@@ -45,8 +45,3 @@ class DB:
             #Return False for existing content (or content had insufficient detail,
             #for example missing a link that produced an integrity error
             return False
-
-    @staticmethod
-    def get_tweet_content(source, uid):
-        title, link, twitter_handle = "test", "test", "test"
-        return source, uid, title, link, twitter_handle

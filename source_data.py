@@ -1,5 +1,6 @@
 from functools import wraps
 from DB_Manager import DB
+import tweet
 import requests
 import xmltodict
 from pprint import pprint
@@ -41,11 +42,11 @@ class PlanetPython:
         xml_dict = xmltodict.parse(self.rss_feed)
         for item in xml_dict['rss']['channel']['item']:
             if DB.add_new_content('PlanetPython', item['link'], item['title'], item['link']):
-                print("This was new content, send tweet")
+                tweet.generate('PlanetPython', item['link'])
                 #only tweet one post per cron task
                 break
 
-        #If no new tweets, return an old one from the archive (true or false?)
+        #TODO: If no new tweets, return an old one from the archive (true or false?)
 
     @property
     def rss_feed(self):
