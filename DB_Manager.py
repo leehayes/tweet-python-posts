@@ -9,13 +9,19 @@ class DB:
     def __init__(self, source, twitter_handle):
         conn = sqlite3.connect('Posts.db')
         with conn:
-            #Create table if necessary.....
+            #Create tables if necessary.....
             conn.execute('''CREATE TABLE if not exists Posts
-                        (UID     INT PRIMARY KEY     NOT NULL,
+                        (UID     TEXT PRIMARY KEY     NOT NULL,
                          Title   TEXT    NOT NULL,
                          Link    TEXT    NOT NULL,
                          Source  TEXT NOT NULL,
                          FOREIGN KEY (Source) REFERENCES Source(Source));''')
+            conn.execute('''CREATE TABLE if not exists Videos
+                                    (UID     TEXT PRIMARY KEY     NOT NULL,
+                                     Title   TEXT    NOT NULL,
+                                     Link    TEXT    NOT NULL,
+                                     Source  TEXT NOT NULL,
+                                     FOREIGN KEY (Source) REFERENCES Source(Source));''')
             conn.execute('''CREATE TABLE if not exists Source
                         (Source TEXT PRIMARY KEY     NOT NULL,
                          Twitter          TEXT    NOT NULL);''')
@@ -45,3 +51,7 @@ class DB:
             #Return False for existing content (or content had insufficient detail,
             #for example missing a link that produced an integrity error
             return False
+
+    @staticmethod
+    def add_new_video(source, uid, title, link):
+        return True

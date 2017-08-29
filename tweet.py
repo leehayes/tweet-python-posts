@@ -31,11 +31,15 @@ def generate(source, uid):
 
             msg = "{}\n{}\n{}\n{}".format(title, link, handle, "#python")
 
-            if len(msg)>140:
-                msg = "{}\n{}\n{}".format(link, handle, "#python")
+            if len(msg) > 140:
+                title_length = 140 - len(link) - len(handle)
+                msg = "{}\n{}\n{}".format(title[:title_length], link, handle)
+
+            if len(msg) > 140:
+                title_length = 140 - len(link)
+                msg = "{}\n{}".format(title[:title_length], link)
 
             if len(msg) > 140:
                 msg = "{}\n{}".format(link, handle)
-                return None
-            else:
-                send(msg)
+
+            send(msg)
