@@ -6,15 +6,47 @@ import sqlite3
 
 
 class DB:
-    def __init__(self):
-        # Create a database in RAM
+    def __init__(self, source, twitter_handle):
         conn = sqlite3.connect('Posts.db')
-        #Create table if necessary.....
-        conn.execute('''CREATE TABLE if not exists Posts
-                 (ID INT PRIMARY KEY     NOT NULL,
-                 URL            TEXT    NOT NULL,
-                 Title          TEXT    NOT NULL);''')
-        conn.close()
+        with conn:
+            #Create table if necessary.....
+            conn.execute('''CREATE TABLE if not exists Posts
+                        (UID     INT PRIMARY KEY     NOT NULL,
+                         Title   TEXT    NOT NULL,
+                         Link    TEXT    NOT NULL,
+                         Source  TEXT NOT NULL,
+                         FOREIGN KEY (Source) REFERENCES Source(Source));''')
+            conn.execute('''CREATE TABLE if not exists Source
+                        (Source TEXT PRIMARY KEY     NOT NULL,
+                         Twitter          TEXT    NOT NULL);''')
 
-    def add_new_content(self, source, uid, title, link):
-        return True
+            #add Source and twitter handle to Source table
+            cursor = conn.cursor()
+            cursor.execute("SELECT count(*) FROM Source WHERE Source = ? AND Twitter =?", (source, twitter_handle))
+            data = cursor.fetchone()[0]
+            # If this source is new, insert into Source table
+            if data == 0:
+                cursor.execute('insert into Source values (?,?)', (source, twitter_handle))
+
+    @staticmethod
+    def add_new_content(source, uid, title, link):
+        conn = sqlite3.connect('Posts.db')
+        with conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT count(*) FROM Posts WHERE Source = ? AND UID =?", (source, uid))
+            data = cursor.fetchone()[0]
+            #If this post is new, insert in DB and return True
+            if data == 0:
+                try:
+                    cursor.execute('insert into posts values (?,?,?,?)', (uid, title, link, source,))
+                    return True
+                except sqlite3.IntegrityError:
+                    pass
+            #Return False for existing content (or content had insufficient detail,
+            #for example missing a link that produced an integrity error
+            return False
+
+    @staticmethod
+    def get_tweet_content(source, uid):
+        title, link, twitter_handle = "test", "test", "test"
+        return source, uid, title, link, twitter_handle

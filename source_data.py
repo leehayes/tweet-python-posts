@@ -1,5 +1,5 @@
 from functools import wraps
-import DB_Manager
+from DB_Manager import DB
 import requests
 import xmltodict
 from pprint import pprint
@@ -18,7 +18,7 @@ class Decorators:
     def check_sql(cls, func):
         @wraps(func)
         def wrapper(*args, **kwargs):
-            DB_Manager.DB()
+            DB("PlanetPython", "@planetpython")
             return func(*args, **kwargs)
         return wrapper
 
@@ -28,13 +28,19 @@ class PlanetPython:
     Get the new posts from the PlanetPython RSS feed and scrape the historical feeds
     Typically this site has new content daily, up to 3 new posts a day
     """
+
+    def __init__(self):
+        self.source = "PlanetPython"
+        self.twitter_handle = "@planetpython"
+
+
     @Decorators.check_sql
     def __call__(self):
         print("Running PlanetPython")
 
         xml_dict = xmltodict.parse(self.rss_feed)
         for item in xml_dict['rss']['channel']['item']:
-            if DB_Manager.add_new_content('PlanetPython', item['link'], item['title'], item['link'])
+            if DB.add_new_content('PlanetPython', item['link'], item['title'], item['link']):
                 print("This was new content, send tweet")
                 #only tweet one post per cron task
                 break
