@@ -56,7 +56,7 @@ class DB:
     def add_new_video(video_json):
         if 'eng' not in str(video_json.get('language')).lower():
             return False
-        pprint(video_json)
+        #pprint(video_json)
         UID = video_json.get('videos')[0]['url']
         Title = video_json.get('title')
         Link = video_json.get('videos')[0]['url']
