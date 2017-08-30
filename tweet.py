@@ -70,13 +70,13 @@ def generate_video(UID):
 
             if len(msg) > 140:
                 title_length = 140 - len(link)
-                msg = "{}\n{}\n{}".format(title[:title_length], link, date, thumb)
+                msg = "{}\n{}\n{} {}".format(title[:title_length], link, date, thumb)
 
             if len(msg) > 140:
                 title_length = 140 - len(link)
-                msg = "{}\n{}".format(title[:title_length], link, thumb)
+                msg = "{}\n{} {}".format(title[:title_length], link, thumb)
 
             if len(msg) > 140:
-                msg = "{}\n{}".format(link, "#python", thumb)
+                msg = "{}\n{}".format(link, thumb)
 
             send(msg)
