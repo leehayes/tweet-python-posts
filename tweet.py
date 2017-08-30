@@ -1,7 +1,8 @@
-
+import os
 import private
 import tweepy
 import sqlite3
+import requests
 
 def get_api(cfg):
     auth = tweepy.OAuthHandler(cfg['consumer_key'], cfg['consumer_secret'])
@@ -15,6 +16,19 @@ def send(msg):
     except tweepy.error.TweepError as e:
         print("tweet dupe: {}".format(msg), e)
 
+def send_img(msg, url_img):
+    api = get_api(private.cfg)
+    filename = 'temp.jpg'
+    request = requests.get(url_img, stream=True)
+    if request.status_code == 200:
+        with open(filename, 'wb') as image:
+            for chunk in request:
+                image.write(chunk)
+
+        api.update_with_media(filename, status=msg)
+        os.remove(filename)
+    else:
+        print("Unable to download image")
 
 def generate(source, uid):
     conn = sqlite3.connect('Posts.db')
@@ -76,4 +90,5 @@ def generate_video(UID):
                 title_length = 140 - len(link)
                 msg = "{}\n{}".format(title[:title_length], link)
 
-            send(msg)
+            #send(msg)
+            send_img(msg, thumb)
