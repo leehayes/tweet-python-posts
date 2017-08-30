@@ -3,7 +3,7 @@ Manage the CRUD functionality for the database
 """
 
 import sqlite3
-
+from pprint import pprint
 
 class DB:
     def __init__(self, source, twitter_handle):
@@ -20,7 +20,8 @@ class DB:
                                     (UID     TEXT PRIMARY KEY     NOT NULL,
                                      Title   TEXT    NOT NULL,
                                      Link    TEXT    NOT NULL,
-                                     Date    TEXT    NOT NULL);''')
+                                     Date    TEXT    NOT NULL,
+                                     Thumb   TEXT    NOT NULL);''')
             conn.execute('''CREATE TABLE if not exists Source
                         (Source TEXT PRIMARY KEY     NOT NULL,
                          Twitter          TEXT    NOT NULL);''')
@@ -55,10 +56,12 @@ class DB:
     def add_new_video(video_json):
         if 'eng' not in str(video_json.get('language')).lower():
             return False
+        pprint(video_json)
         UID = video_json.get('videos')[0]['url']
         Title = video_json.get('title')
         Link = video_json.get('videos')[0]['url']
         Date = video_json.get('recorded')
+        Thumb = video_json.get('thumbnail_url')
 
         conn = sqlite3.connect('Posts.db')
         with conn:
@@ -68,7 +71,7 @@ class DB:
             #If this video is new, insert in DB and return True
             if data == 0:
                 try:
-                    cursor.execute('insert into Videos values (?,?,?,?)', (UID, Title, Link, Date))
+                    cursor.execute('insert into Videos values (?,?,?,?,?)', (UID, Title, Link, Date, Thumb))
                     return True
                 except sqlite3.IntegrityError:
                     pass

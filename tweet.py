@@ -64,18 +64,19 @@ def generate_video(UID):
             title = post[1]
             link = post[2]
             date = post[3]
+            thumb = post[4]
 
-            msg = "{}\n{}\n{}\n{} {}".format(title, link, date, "@PyvideoOrg", "#python")
-
-            if len(msg) > 140:
-                title_length = 140 - len(link)
-                msg = "{}\n{}\n{}".format(title[:title_length], link, date)
+            msg = "{}\n{}\n{}\n{}\n{} {}".format(title, link, thumb, date, "@PyvideoOrg", "#python")
 
             if len(msg) > 140:
                 title_length = 140 - len(link)
-                msg = "{}\n{}".format(title[:title_length], link)
+                msg = "{}\n{}\n{}".format(title[:title_length], link, date, thumb)
 
             if len(msg) > 140:
-                msg = "{}\n{}".format(link, "#python")
+                title_length = 140 - len(link)
+                msg = "{}\n{}".format(title[:title_length], link, thumb)
+
+            if len(msg) > 140:
+                msg = "{}\n{}".format(link, "#python", thumb)
 
             send(msg)
