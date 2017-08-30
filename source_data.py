@@ -42,6 +42,7 @@ class PlanetPython:
         for item in xml_dict['rss']['channel']['item']:
             if DB.add_new_content('PlanetPython', item['link'], item['title'], item['link']):
                 tweet.generate('PlanetPython', item['link'])
+                break
                 #only tweet one post per cron task
 
         #TODO: If no new tweets, return an old one from the archive (true or false?)
@@ -64,18 +65,22 @@ class PyVideo:
     #@Decorators.check_sql
     def __call__(self):
         td_list = self.github_rows('https://github.com/pyvideo/data')
-        event_list = []
+        BREAK = False
         for event in td_list:
             td_list2 = self.github_rows('https://github.com/pyvideo/data/tree/master/{}/videos'.format(event))
             for video_json in td_list2:
                 if video_json[-5:] == ".json":
                     html = requests.get(
-                        'https://github.com/pyvideo/data/tree/master/{}/videos/{}'.format(event, video_json))
-                    event_list.append(video_json)
-                    print(video_json)
-                    #DB.add_new_video()
-                #break
-            #print(event_list)
+                        'https://raw.githubusercontent.com/pyvideo/data/master/{}/videos/{}'.format(event, video_json))
+                    #print('check if in db')
+                    if DB.add_new_video(html.json()):
+                        #print("video added to DB")
+                        tweet.generate_video(html.json().get('videos')[0]['url'])
+                        BREAK = True  #Only here is BREAK ever decided
+                        if BREAK:
+                            break
+            if BREAK:
+                break
 
     @staticmethod
     def github_rows(url):

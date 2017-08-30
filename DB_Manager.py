@@ -20,8 +20,7 @@ class DB:
                                     (UID     TEXT PRIMARY KEY     NOT NULL,
                                      Title   TEXT    NOT NULL,
                                      Link    TEXT    NOT NULL,
-                                     Source  TEXT NOT NULL,
-                                     FOREIGN KEY (Source) REFERENCES Source(Source));''')
+                                     Date    TEXT    NOT NULL);''')
             conn.execute('''CREATE TABLE if not exists Source
                         (Source TEXT PRIMARY KEY     NOT NULL,
                          Twitter          TEXT    NOT NULL);''')
@@ -53,5 +52,27 @@ class DB:
             return False
 
     @staticmethod
-    def add_new_video(source, uid, title, link):
-        return True
+    def add_new_video(video_json):
+        if 'eng' not in str(video_json.get('language')).lower():
+            return False
+        UID = video_json.get('videos')[0]['url']
+        Title = video_json.get('title')
+        Link = video_json.get('videos')[0]['url']
+        Date = video_json.get('recorded')
+
+        conn = sqlite3.connect('Posts.db')
+        with conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT count(*) FROM Videos WHERE UID =?", (UID,))
+            data = cursor.fetchone()[0]
+            #If this video is new, insert in DB and return True
+            if data == 0:
+                try:
+                    cursor.execute('insert into Videos values (?,?,?,?)', (UID, Title, Link, Date))
+                    return True
+                except sqlite3.IntegrityError:
+                    pass
+            #Return False for existing content (or content had insufficient detail,
+            #for example missing a link that produced an integrity error
+            return False
+
