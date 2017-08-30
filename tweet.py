@@ -13,7 +13,7 @@ def send(msg):
     try:
         api.update_status(status=msg)
     except tweepy.error.TweepError as e:
-        print("tweet dupe", e)
+        print("tweet dupe: {}".format(msg), e)
 
 
 def generate(source, uid):
@@ -66,17 +66,14 @@ def generate_video(UID):
             date = post[3]
             thumb = post[4]
 
-            msg = "{}\n{}\n{}\n{}\n{} {}".format(title, link, thumb, date, "@PyvideoOrg", "#python")
+            msg = "{}\n{}\n{}\n{}\n{}".format(title, link, date, "@PyvideoOrg", "#python")
 
             if len(msg) > 140:
                 title_length = 140 - len(link)
-                msg = "{}\n{}\n{} {}".format(title[:title_length], link, date, thumb)
+                msg = "{}\n{}\n{}".format(title[:title_length], link, date)
 
             if len(msg) > 140:
                 title_length = 140 - len(link)
-                msg = "{}\n{} {}".format(title[:title_length], link, thumb)
-
-            if len(msg) > 140:
-                msg = "{}\n{}".format(link, thumb)
+                msg = "{}\n{}".format(title[:title_length], link)
 
             send(msg)
